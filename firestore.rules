@@ -1,0 +1,111 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ────────────────────────────────────────────
+    // Helper functions
+    // ────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return request.auth.uid == uid;
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && getUserRole() == 'admin';
+    }
+
+    function isArenaOwner() {
+      return isSignedIn() && getUserRole() == 'owner';
+    }
+
+    // ────────────────────────────────────────────
+    // users/{userId}
+    // ────────────────────────────────────────────
+    match /users/{userId} {
+      // Users can read and write their own doc
+      allow read, write: if isOwner(userId);
+      // Admins can read all user docs
+      allow read: if isAdmin();
+      // Admins can suspend users (update suspended field)
+      allow update: if isAdmin();
+    }
+
+    // ────────────────────────────────────────────
+    // arenas/{arenaId}
+    // ────────────────────────────────────────────
+    match /arenas/{arenaId} {
+      // Any signed-in user can read arenas
+      allow read: if isSignedIn();
+      // Owner can create/edit their own arenas
+      allow create: if isArenaOwner() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isArenaOwner() && resource.data.ownerId == request.auth.uid;
+      // Admin can do anything
+      allow write: if isAdmin();
+    }
+
+    // ────────────────────────────────────────────
+    // courts/{courtId}
+    // ────────────────────────────────────────────
+    match /courts/{courtId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isArenaOwner() || isAdmin();
+    }
+
+    // ────────────────────────────────────────────
+    // bookings/{bookingId}
+    // ────────────────────────────────────────────
+    match /bookings/{bookingId} {
+      // Customers can read their own bookings
+      allow read: if isSignedIn() && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.ownerId == request.auth.uid ||
+        isAdmin()
+      );
+      // Only authenticated users can create bookings for themselves
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      // Only the booking owner can cancel (set status to 'cancelled')
+      // Admin can update any booking status
+      allow update: if isSignedIn() && (
+        (resource.data.userId == request.auth.uid && request.resource.data.status == 'cancelled') ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ────────────────────────────────────────────
+    // payments/{paymentId}
+    // ────────────────────────────────────────────
+    match /payments/{paymentId} {
+      allow read: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isAdmin()
+      );
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();
+    }
+
+    // ────────────────────────────────────────────
+    // events/{eventId}
+    // ────────────────────────────────────────────
+    match /events/{eventId} {
+      // Events are publicly readable (even unauthenticated for landing website)
+      allow read: if true;
+      // Only admins can create/edit/delete events
+      allow write: if isAdmin();
+    }
+
+    // ────────────────────────────────────────────
+    // sports/{sportId}
+    // ────────────────────────────────────────────
+    match /sports/{sportId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

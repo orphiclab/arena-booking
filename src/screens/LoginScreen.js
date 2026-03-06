@@ -18,12 +18,14 @@ import { logIn } from '../services/authService';
 import { darkColors, lightColors } from '../theme/colors';
 import CustomButton from '../components/CustomButton';
 import CustomInput from '../components/CustomInput';
+import { useAuth } from '../contexts/AuthContext';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const { demoLogin } = useAuth();
 
   const colorScheme = useColorScheme();
   const colors = colorScheme === 'dark' ? darkColors : lightColors;
@@ -124,6 +126,41 @@ const LoginScreen = ({ navigation }) => {
             onPress={() => Alert.alert('Google Sign-In', 'Configure expo-auth-session with your Google OAuth credentials to enable this.')}
             icon={<Ionicons name="logo-google" size={18} color={colors.primary} />}
           />
+
+          {/* ── Demo Mode ── */}
+          <View style={styles.demoSection}>
+            <View style={styles.dividerRow}>
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
+              <Text style={[styles.dividerText, { color: colors.textSecondary }]}>DEMO (no Firebase needed)</Text>
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
+            </View>
+            <View style={styles.demoRow}>
+              <TouchableOpacity
+                style={[styles.demoBtn, { backgroundColor: '#00C2FF22', borderColor: '#00C2FF' }]}
+                onPress={() => demoLogin('customer@demo.com')}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="person" size={16} color="#00C2FF" />
+                <Text style={[styles.demoBtnText, { color: '#00C2FF' }]}>Customer</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.demoBtn, { backgroundColor: '#10B98122', borderColor: '#10B981' }]}
+                onPress={() => demoLogin('owner@demo.com')}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="business" size={16} color="#10B981" />
+                <Text style={[styles.demoBtnText, { color: '#10B981' }]}>Owner</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.demoBtn, { backgroundColor: '#8B5CF622', borderColor: '#8B5CF6' }]}
+                onPress={() => demoLogin('admin@demo.com')}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="shield" size={16} color="#8B5CF6" />
+                <Text style={[styles.demoBtnText, { color: '#8B5CF6' }]}>Admin</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
         {/* Sign up link */}
@@ -218,6 +255,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
+  demoSection: { marginTop: 4 },
+  demoRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
+  demoBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    paddingVertical: 12,
+  },
+  demoBtnText: { fontSize: 13, fontWeight: '700' },
 });
 
 export default LoginScreen;

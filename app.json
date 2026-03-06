@@ -1,0 +1,64 @@
+{
+  "expo": {
+    "name": "Arena Booking",
+    "slug": "arena-booking",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0E1A"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.arenabooking.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Arena Booking needs your location to show nearby arenas.",
+        "NSLocationAlwaysUsageDescription": "Arena Booking needs your location to show nearby arenas.",
+        "NSPhotoLibraryUsageDescription": "Arena Booking needs access to your photo library to upload arena images.",
+        "NSCameraUsageDescription": "Arena Booking needs camera access to take arena photos."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A0E1A"
+      },
+      "package": "com.arenabooking.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "CAMERA"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "YOUR_GOOGLE_MAPS_API_KEY"
+        }
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-location",
+      "expo-image-picker",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#00C2FF"
+        }
+      ],
+      "expo-web-browser",
+      "expo-font",
+      "expo-asset"
+    ]
+  }
+}
